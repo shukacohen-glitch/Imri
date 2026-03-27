@@ -61,8 +61,8 @@ h2{color:#ffc107}input,textarea{width:100%;padding:10px;margin:10px 0;background
 <div id="cartList">העגלה ריקה</div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
 console.log('=== SCRIPT START ===');
@@ -79,16 +79,15 @@ const firebaseConfig = {
 
 console.log('Firebase config loaded');
 
+let db;
 try {
   firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
   console.log('✅ Firebase initialized');
-  const db = firebase.database();
   console.log('✅ Database connected');
 } catch(e) {
   console.error('❌ Firebase error:', e);
 }
-
-const db = firebase.database();
 
 let products = [];
 let cart = [];
