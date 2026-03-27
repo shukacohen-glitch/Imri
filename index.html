@@ -61,12 +61,10 @@ h2{color:#ffc107}input,textarea{width:100%;padding:10px;margin:10px 0;background
 <div id="cartList">העגלה ריקה</div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-console.log('=== SCRIPT START ===');
-
 const firebaseConfig = {
   apiKey: "AIzaSyAzVJLwrztyJ7EU2PSSxbaJU7jvp-ALz5w",
   authDomain: "imri-c0eed.firebaseapp.com",
@@ -77,18 +75,13 @@ const firebaseConfig = {
   appId: "1:657777582409:web:f6cec3efce497458033a98"
 };
 
-console.log('Firebase config loaded');
-
+let db;
 try {
   firebase.initializeApp(firebaseConfig);
-  console.log('✅ Firebase initialized');
-  const db = firebase.database();
-  console.log('✅ Database connected');
+  db = firebase.database();
 } catch(e) {
-  console.error('❌ Firebase error:', e);
+  console.error('Firebase initialization error:', e);
 }
-
-const db = firebase.database();
 
 let products = [];
 let cart = [];
@@ -102,7 +95,10 @@ window.addEventListener('load', function() {
 });
 
 function loadProducts() {
-  console.log('=== LOADING PRODUCTS ===');
+  if(!db) {
+    document.getElementById('productList').innerHTML = '<p>שגיאה: לא ניתן להתחבר למסד הנתונים</p>';
+    return;
+  }
   db.ref('products').on('value', function(snapshot) {
     console.log('📊 Snapshot received');
     if(snapshot.exists()) {
