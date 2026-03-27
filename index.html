@@ -1,0 +1,92 @@
+let cart = [];
+
+function addToCart(id, name, price) {
+  cart.push({id: id, name: name, price: price});
+  localStorage.setItem('cart', JSON.stringify(cart));
+  alert('✅ ' + name + ' הוסף לעג��ה!');
+  showCart();
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  showCart();
+}
+
+function showCart() {
+  let html = '';
+  let total = 0;
+  
+  if(cart.length === 0) {
+    html = '<p>העגלה ריקה</p>';
+  } else {
+    cart.forEach((item, index) => {
+      total += item.price;
+      html += '<div class="product-item">';
+      html += '<b>' + item.name + '</b> - ₪' + item.price.toFixed(2);
+      html += ' <button class="btn" onclick="removeFromCart(' + index + ')" style="background:#f44;width:auto">הסר</button>';
+      html += '</div>';
+    });
+    html += '<h3 style="color:#ffc107">סה"כ: ₪' + total.toFixed(2) + '</h3>';
+    html += '<button class="btn" onclick="checkout()">הזמנה</button>';
+  }
+  
+  document.getElementById('cartList').innerHTML = html;
+}
+
+function checkout() {
+  if(cart.length === 0) {
+    alert('העגלה ריקה');
+    return;
+  }
+  
+  let name = prompt('שם:');
+  if(!name) return;
+  let phone = prompt('טלפון:');
+  if(!phone) return;
+  
+  let total = 0;
+  let msg = '*הזמנה*\n';
+  msg += 'שם: ' + name + '\n';
+  msg += 'טלפון: ' + phone + '\n';
+  msg += '---\n';
+  
+  cart.forEach(item => {
+    total += item.price;
+    msg += item.name + ' - ₪' + item.price.toFixed(2) + '\n';
+  });
+  
+  msg += '---\n';
+  msg += 'סה"כ: ₪' + total.toFixed(2);
+  
+  let url = 'https://wa.me/972533381681?text=' + encodeURIComponent(msg);
+  window.open(url);
+  
+  alert('✅ ההזמנה נשלחה!');
+  cart = [];
+  localStorage.setItem('cart', JSON.stringify(cart));
+  showCart();
+}
+
+window.addEventListener('load', function() {
+  let saved = localStorage.getItem('products');
+  if(saved) {
+    try {
+      products = JSON.parse(saved);
+    } catch(e) {
+      console.log('Error loading products:', e);
+    }
+  }
+  
+  let savedCart = localStorage.getItem('cart');
+  if(savedCart) {
+    try {
+      cart = JSON.parse(savedCart);
+    } catch(e) {
+      console.log('Error loading cart:', e);
+    }
+  }
+  
+  showProducts();
+  showCart();
+});
