@@ -1,291 +1,42 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>חנות</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;color:#fff;font-family:Arial;padding:20px}
-.header{background:#111;padding:20px;border-bottom:3px solid #ffc107;margin-bottom:20px;text-align:center}
-h1{color:#ffc107;font-size:2em}
-.main-nav{display:flex;gap:15px;justify-content:center;margin:20px 0}
-.main-nav button{background:#ffc107;color:#000;border:none;padding:15px 30px;border-radius:4px;cursor:pointer;font-weight:bold;font-size:1.1em}
-.main-nav button:hover{background:#ffb300}
-.container{max-width:1200px;margin:0 auto}
-.catalog-page{display:block}
-.catalog-page.hidden{display:none}
-.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin:20px 0}
-.product-card{background:#222;padding:15px;border-radius:8px;border:1px solid #444}
-.product-card img{width:100%;height:150px;background:#333;border-radius:4px;margin-bottom:10px}
-.product-card h3{color:#ffc107;margin:10px 0}
-.product-card p{color:#ccc;font-size:0.9em;margin:5px 0}
-.product-price{color:#ffc107;font-size:1.2em;font-weight:bold;margin:10px 0}
-.btn{background:#ffc107;color:#000;border:none;padding:10px 15px;border-radius:4px;cursor:pointer;font-weight:bold}
-.btn:hover{background:#ffb300}
-.btn-small{padding:8px 12px;font-size:0.9em;width:100%}
-.login-page{display:none}
-.login-page.show{display:flex;justify-content:center;align-items:center;min-height:80vh}
-.login-box{background:#222;border:2px solid #ffc107;padding:40px;border-radius:8px;text-align:center;width:100%;max-width:400px}
-.login-box h2{color:#ffc107;margin-bottom:20px}
-.login-box input{width:100%;padding:15px;margin:15px 0;background:#1a1a1a;border:2px solid #444;color:#fff;border-radius:4px;font-size:1.1em;text-align:center;letter-spacing:2px}
-.login-box button{width:100%;background:#ffc107;color:#000;border:none;padding:15px;border-radius:4px;cursor:pointer;font-weight:bold;font-size:1.1em}
-.login-box button:hover{background:#ffb300}
-.error{color:#ff4444;margin:10px 0;font-weight:bold}
-.admin-page{display:none}
-.admin-page.show{display:block}
-.admin-tabs{display:flex;gap:10px;margin-bottom:20px}
-.tab-btn{background:#ffc107;color:#000;border:none;padding:10px 20px;border-radius:4px;cursor:pointer;font-weight:bold}
-.tab-btn.inactive{background:#444;color:#fff}
-.tab-content{display:none}
-.tab-content.active{display:block}
-.form-group{margin:15px 0}
-label{display:block;color:#ffc107;font-weight:bold;margin-bottom:5px}
-input,textarea{width:100%;padding:10px;margin:10px 0;background:#222;border:1px solid #444;color:#fff;border-radius:4px}
-.product-item{background:#2a2a2a;padding:10px;margin:10px 0;border-radius:4px;display:flex;justify-content:space-between;align-items:center}
-.delete-btn{background:#ff4444;color:#fff;padding:5px 10px;border:none;border-radius:4px;cursor:pointer}
-.delete-btn:hover{background:#cc0000}
-.logout-btn{background:#666;color:#fff;padding:10px 20px;border:none;border-radius:4px;cursor:pointer;margin-top:20px}
-.logout-btn:hover{background:#555}
-.cart-item{background:#2a2a2a;padding:10px;margin:10px 0;border-radius:4px;display:flex;justify-content:space-between;align-items:center}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אמרי מלכת הסקוויש</title>
 </head>
 <body>
+    <h1>Product Catalog</h1>
+    <input type="file" id="imageUpload" accept="image/*" onchange="previewImage(event)">
+    <img id="imagePreview" style="display:none;" alt="Image Preview">
 
-<div class="header">
-<h1>🛒 חנות</h1>
-</div>
+    <script>
+        function previewImage(event) {
+            const imagePreview = document.getElementById('imagePreview');
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
 
-<div class="main-nav">
-<button onclick="showCatalog()">📦 קטלוג</button>
-<button onclick="showAdmin()">🔐 ניהול</button>
-<button onclick="showCart()">🛒 עגלה</button>
-</div>
+        function addNewProduct() {
+            const fileInput = document.getElementById('imageUpload');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Handle image upload logic (e.g., upload image to server)
+                }
+                reader.readAsDataURL(file);
+            }
+        }
 
-<div class="container">
-
-<!-- CATALOG PAGE -->
-<div id="catalog-page" class="catalog-page">
-<h2>קטלוג מוצרים</h2>
-<div id="catalog-products" class="products-grid"></div>
-</div>
-
-<!-- LOGIN PAGE -->
-<div id="login-page" class="login-page">
-<div class="login-box">
-<h2>גישה לניהול</h2>
-<p style="margin-bottom:20px">הכנס את קוד הגישה</p>
-<input type="password" id="admin-code" placeholder="קוד" onkeypress="if(event.key==='Enter') checkAdminCode()">
-<p id="login-error" class="error"></p>
-<button onclick="checkAdminCode()">כניסה</button>
-</div>
-</div>
-
-<!-- ADMIN PAGE -->
-<div id="admin-page" class="admin-page">
-<div class="admin-tabs">
-<button class="tab-btn" onclick="switchAdminTab('list')">📦 רשימה</button>
-<button class="tab-btn inactive" onclick="switchAdminTab('add')">➕ הוסף</button>
-</div>
-
-<div id="tab-list" class="tab-content active">
-<h3>מוצרים קיימים</h3>
-<div id="admin-products"></div>
-</div>
-
-<div id="tab-add" class="tab-content">
-<h3>הוסף מוצר חדש</h3>
-<div class="form-group">
-<label>שם:</label>
-<input type="text" id="new-name" placeholder="שם המוצר">
-</div>
-<div class="form-group">
-<label>תיאור:</label>
-<textarea id="new-desc" placeholder="תיאור" rows="3"></textarea>
-</div>
-<div class="form-group">
-<label>מחיר:</label>
-<input type="number" id="new-price" placeholder="מחיר" step="0.01">
-</div>
-<button class="btn" onclick="addNewProduct()">הוסף</button>
-</div>
-
-<button class="logout-btn" onclick="logout()">התנתק</button>
-</div>
-
-<!-- CART PAGE -->
-<div id="cart-page" class="catalog-page hidden">
-<h2>🛒 עגלה</h2>
-<div id="cart-items"></div>
-<h3>סה"כ: <span id="cart-total">0</span>₪</h3>
-<button class="btn" onclick="checkout()" style="width:100%;padding:15px">הזמנה</button>
-</div>
-
-</div>
-
-<script>
-const ADMIN_CODE = '5262104';
-let products = JSON.parse(localStorage.getItem('shop-products')) || [];
-let cart = [];
-let isAdmin = false;
-
-function showCatalog(){
-  document.getElementById('catalog-page').classList.remove('hidden');
-  document.getElementById('login-page').classList.remove('show');
-  document.getElementById('admin-page').classList.remove('show');
-  document.getElementById('cart-page').classList.add('hidden');
-  loadCatalog();
-}
-
-function showAdmin(){
-  if(!isAdmin){
-    document.getElementById('login-page').classList.add('show');
-    document.getElementById('catalog-page').classList.add('hidden');
-    document.getElementById('admin-page').classList.remove('show');
-    document.getElementById('cart-page').classList.add('hidden');
-  }
-}
-
-function showCart(){
-  document.getElementById('catalog-page').classList.add('hidden');
-  document.getElementById('login-page').classList.remove('show');
-  document.getElementById('admin-page').classList.remove('show');
-  document.getElementById('cart-page').classList.remove('hidden');
-  loadCart();
-}
-
-function checkAdminCode(){
-  const code = document.getElementById('admin-code').value.trim();
-  if(code === ADMIN_CODE){
-    isAdmin = true;
-    document.getElementById('login-page').classList.remove('show');
-    document.getElementById('admin-page').classList.add('show');
-    document.getElementById('admin-code').value = '';
-    loadAdminProducts();
-  } else {
-    document.getElementById('login-error').textContent = '❌ קוד שגוי!';
-    document.getElementById('admin-code').value = '';
-  }
-}
-
-function logout(){
-  isAdmin = false;
-  document.getElementById('admin-page').classList.remove('show');
-  document.getElementById('login-page').classList.add('show');
-  showCatalog();
-}
-
-function switchAdminTab(tab){
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('inactive'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  event.target.classList.remove('inactive');
-}
-
-function loadCatalog(){
-  let html = '';
-  products.forEach(p => {
-    html += `<div class="product-card">
-      <div style="background:#333;height:150px;border-radius:4px;margin-bottom:10px"></div>
-      <h3>${p.name}</h3>
-      <p>${p.desc}</p>
-      <div class="product-price">₪${p.price.toFixed(2)}</div>
-      <button class="btn btn-small" onclick="addToCart(${p.id}, '${p.name}', ${p.price})">הוסף לסל</button>
-    </div>`;
-  });
-  document.getElementById('catalog-products').innerHTML = html || '<p style="color:#888">אין מוצרים</p>';
-}
-
-function loadAdminProducts(){
-  let html = '';
-  products.forEach(p => {
-    html += `<div class="product-item">
-      <div>
-        <strong>${p.name}</strong><br>
-        <span style="color:#ccc">${p.desc}</span><br>
-        <span style="color:#ffc107">₪${p.price.toFixed(2)}</span>
-      </div>
-      <button class="delete-btn" onclick="deleteProduct(${p.id})">מחק</button>
-    </div>`;
-  });
-  document.getElementById('admin-products').innerHTML = html || '<p style="color:#888">אין מוצרים</p>';
-}
-
-function addNewProduct(){
-  const name = document.getElementById('new-name').value.trim();
-  const desc = document.getElementById('new-desc').value.trim();
-  const price = parseFloat(document.getElementById('new-price').value);
-  
-  if(!name || !desc || !price){
-    alert('מלא את כל השדות!');
-    return;
-  }
-  
-  products.push({
-    id: Date.now(),
-    name: name,
-    desc: desc,
-    price: price
-  });
-  
-  localStorage.setItem('shop-products', JSON.stringify(products));
-  
-  document.getElementById('new-name').value = '';
-  document.getElementById('new-desc').value = '';
-  document.getElementById('new-price').value = '';
-  
-  loadAdminProducts();
-  loadCatalog();
-  alert('✅ מוצר נוסף!');
-}
-
-function deleteProduct(id){
-  if(confirm('למחוק?')){
-    products = products.filter(p => p.id !== id);
-    localStorage.setItem('shop-products', JSON.stringify(products));
-    loadAdminProducts();
-    loadCatalog();
-  }
-}
-
-function addToCart(id, name, price){
-  cart.push({id, name, price});
-  alert('✅ ' + name + ' נוסף לסל');
-}
-
-function loadCart(){
-  let html = '';
-  let total = 0;
-  cart.forEach((item, i) => {
-    total += item.price;
-    html += `<div class="cart-item">
-      <div>
-        <strong>${item.name}</strong> - ₪${item.price.toFixed(2)}
-      </div>
-      <button class="delete-btn" onclick="cart.splice(${i},1); loadCart()">הסר</button>
-    </div>`;
-  });
-  document.getElementById('cart-items').innerHTML = html || '<p style="color:#888">העגלה ריקה</p>';
-  document.getElementById('cart-total').textContent = total.toFixed(2);
-}
-
-function checkout(){
-  if(cart.length === 0){
-    alert('העגלה ריקה!');
-    return;
-  }
-  const name = prompt('שם:');
-  const phone = prompt('טלפון:');
-  if(name && phone){
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
-    alert('✅ הזמנה התקבלה!\nשם: ' + name + '\nטלפון: ' + phone + '\nסה"כ: ₪' + total.toFixed(2));
-    cart = [];
-    showCatalog();
-  }
-}
-
-showCatalog();
-</script>
-
+        function loadCatalog() {
+            // Logic to display products; modify this to display product images as well.
+        }
+    </script>
 </body>
 </html>
