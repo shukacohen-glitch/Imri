@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אמרי</title>
+<style>
+body{background:#000;color:#fff;font-family:Arial;padding:20px}h1{color:#ffc107;text-align:center}
+.buttons{text-align:center;margin:20px}.buttons button{background:#ffc107;color:#000;border:none;padding:15px;margin:5px;cursor:pointer;border-radius:4px;font-size:16px;font-weight:bold}
+.page{background:#222;padding:20px;margin:20px 0;border-radius:4px;min-height:200px;display:none}
+.page.active{display:block}
+h2{color:#ffc107}input{width:100%;padding:10px;margin:10px 0;background:#111;color:#fff;border:1px solid #ffc107}
+.btn{background:#ffc107;color:#000;border:none;padding:10px 20px;margin:10px 0;cursor:pointer;font-weight:bold}
+</style>
+</head>
+<body>
+<h1>🛒 אמרי מלכת הסקוויש</h1>
+
+<div class="buttons">
+<button onclick="show('home')">📦 קטלוג</button>
+<button onclick="show('admin')">🔐 ניהול</button>
+<button onclick="show('cart')">🛒 עגלה</button>
+</div>
+
+<div id="home" class="page active">
+<h2>קטלוג</h2>
+<div id="productList">אין מוצרים</div>
+</div>
+
+<div id="admin" class="page">
+<h2>ניהול</h2>
+<div id="login">
+<input type="password" id="code" placeholder="הקוד">
+<button class="btn" onclick="checkCode()">כניסה</button>
+</div>
+<div id="panel" style="display:none">
+<h3>הוסף מוצר</h3>
+<input type="text" id="name" placeholder="שם">
+<input type="text" id="desc" placeholder="תיאור">
+<input type="number" id="price" placeholder="מחיר">
+<input type="file" id="img">
+<button class="btn" onclick="saveProduct()">שמור</button>
+<h3>המוצרים</h3>
+<div id="myProducts"></div>
+<button class="btn" onclick="logout()" style="background:#f44">התנתק</button>
+</div>
+</div>
+
+<div id="cart" class="page">
+<h2>עגלה</h2>
+<div id="cartList">ריקה</div>
+</div>
+
+<script>
+let products = [];
+let cart = [];
+
+function show(page) {
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+document.getElementById(page).classList.add('active');
+}
+
+function checkCode() {
+let code = document.getElementById('code').value;
+if(code === '5262104') {
+document.getElementById('login').style.display = 'none';
+document.getElementById('panel').style.display = 'block';
+showMyProducts();
+} else {
+alert('קוד שגוי');
+}
+}
+
+function logout() {
+document.getElementById('login').style.display = 'block';
+document.getElementById('panel').style.display = 'none';
+document.getElementById('code').value = '';
+}
+
+function saveProduct() {
+let name = document.getElementById('name').value;
+let desc = document.getElementById('desc').value;
+let price = document.getElementById('price').value;
+let file = document.getElementById('img').files[0];
+
+if(!name || !desc || !price || !file) {
+alert('מלא הכל');
+return;
+}
+
+let reader = new FileReader();
+reader.onload = function(e) {
+products.push({id:Date.now(), name:name, desc:desc, price:price, img:e.target.result});
+localStorage.setItem('products', JSON.stringify(products));
+document.getElementById('name').value = '';
+document.getElementById('desc').value = '';
+document.getElementById('price').value = '';
+document.getElementById('img').value = '';
+showMyProducts();
+showProducts();
+alert('✅ מוצר הוסף');
+};
+reader.readAsDataURL(file);
+}
+
+function showMyProducts() {
+let html = '';
+products.forEach(p => {
+html += '<div style="background:#111;padding:10px;margin:10px 0"><b>'+p.name+'</b> - ₪'+p.price+' <button onclick="delProduct('+p.id+')" style="background:#f44;color:#fff;border:none;padding:5px">מחק</button></div>';
+});
+document.getElementById('myProducts').innerHTML = html || 'אין';
+}
+
+function delProduct(id) {
+products = products.filter(p => p.id !== id);
+localStorage.setItem('products', JSON.stringify(products));
+showMyProducts();
+showProducts();
+}
+
+function showProducts() {
+let html = '';
+products.forEach(p => {
+html += '<div style="background:#111;padding:10px;margin:10px 0"><b>'+p.name+'</b><br>'+p.desc+'<br><img src="'+p.img+'" style="width:100%;max-width:150px"><br>₪'+p.price+' <button class="btn" onclick="addCart(\''+p.name+'\','+p.price+')">הוסף</button></div>';
+});
+document.getElementById('productList').innerHTML = html || 'אין';
+}
+
+function addCart(name, price) {
+cart.push({name:name, price:price});
+alert('✅ הוסף');
+}
+
+let saved = localStorage.getItem('products');
+if(saved) products = JSON.parse(saved);
+showProducts();
+</script>
+</body>
+</html>
