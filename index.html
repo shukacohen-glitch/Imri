@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אמרי</title>
+<style>
+body{background:#000;color:#fff;font-family:Arial;padding:20px}h1{color:#ffc107;text-align:center}
+.buttons{text-align:center;margin:20px}.buttons button{background:#ffc107;color:#000;border:none;padding:15px;margin:5px;cursor:pointer;border-radius:4px;font-size:16px;font-weight:bold}
+.page{background:#222;padding:20px;margin:20px 0;border-radius:4px;min-height:200px;display:none}
+.page.active{display:block}
+h2{color:#ffc107}input,textarea{width:100%;padding:10px;margin:10px 0;background:#111;color:#fff;border:1px solid #ffc107;box-sizing:border-box}
+.btn{background:#ffc107;color:#000;border:none;padding:10px 20px;margin:10px 0;cursor:pointer;font-weight:bold;border-radius:4px}
+.alert{padding:15px;margin:10px 0;border-radius:4px;font-weight:bold}
+.success{background:#00aa00;color:#fff}
+.error{background:#aa0000;color:#fff}
+.product-item{background:#111;padding:15px;margin:10px 0;border-radius:4px;border:2px solid #ffc107}
+.product-item img{width:100%;max-width:200px;margin:10px 0;border-radius:4px}
+.product-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px}
+</style>
+</head>
+<body>
+<h1>🛒 אמרי מלכת הסקוויש</h1>
+
+<div class="buttons">
+<button onclick="show('home')">📦 קטלוג</button>
+<button onclick="show('admin')">🔐 ניהול</button>
+<button onclick="show('cart')">🛒 עגלה</button>
+</div>
+
+<div id="home" class="page active">
+<h2>קטלוג</h2>
+<div class="product-list" id="productList">טוען...</div>
+</div>
+
+<div id="admin" class="page">
+<h2>ניהול</h2>
+<div id="login">
+<p>הקוד: <b>5262104</b></p>
+<input type="password" id="code" placeholder="הקוד" onkeypress="if(event.key==='Enter')checkCode()">
+<button class="btn" onclick="checkCode()">כניסה</button>
+</div>
+<div id="panel" style="display:none">
+<h3>➕ הוסף מוצר חדש</h3>
+<div id="message"></div>
+<input type="text" id="name" placeholder="שם המוצר">
+<input type="text" id="desc" placeholder="תיאור">
+<input type="number" id="price" placeholder="מחיר" step="0.01">
+<input type="file" id="img" accept="image/*">
+<button class="btn" onclick="addProduct()">💾 שמור מוצר</button>
+
+<h3 style="margin-top:30px">📋 המוצרים שלי</h3>
+<div id="myProducts"></div>
+
+<button class="btn" onclick="logout()" style="background:#f44;margin-top:20px">🚪 התנתק</button>
+</div>
+</div>
+
+<div id="cart" class="page">
+<h2>🛒 עגלה</h2>
+<div id="cartList">העגלה ריקה</div>
+</div>
+
+<script>
+let products = [];
+let cart = [];
+let isLoggedIn = false;
+
+console.log('Script loaded');
+
+window.addEventListener('load', function() {
+  console.log('Window loaded');
+  loadProducts();
+});
+
+function loadProducts() {
+  console.log('loadProducts called');
+  let saved = sessionStorage.getItem('products');
+  console.log('Saved products:', saved);
+  
+  if(saved) {
+    try {
+      products = JSON.parse(saved);
+      console.log('Products loaded:', products);
+    } catch(e) {
+      console.log('Error parsing products:', e);
+      products = [];
+    }
+  } else {
+    console.log('No saved products');
+    products = [];
+  }
+  showProducts();
+}
+
+function saveProducts() {
+  console.log('Saving products:', products);
+  sessionStorage.setItem('products', JSON.stringify(products));
+  console.log('Products saved to sessionStorage');
+}
+
+function show(page) {
+  console.log('Showing page:', page);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(page).classList.add('active');
+}
+
+function checkCode() {
+  let code = document.getElementById('code').value;
+  console.log('Code entered:', code);
+  
+  if(code === '5262104') {
+    console.log('Code correct!');
+    isLoggedIn = true;
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    showMyProducts();
+  } else {
+    alert('❌ קוד שגוי!');
+    console.log('Wrong code');
+  }
+}
+
+function logout() {
+  console.log('Logout');
+  isLoggedIn = false;
+  document.getElementById('login').style.display = 'block';
+  document.getElementById('panel').style.display = 'none';
+  document.getElementById('code').value = '';
+}
+
+function addProduct() {
+  console.log('=== addProduct called ===');
+  console.log('isLoggedIn:', isLoggedIn);
+  
+  if(!isLoggedIn) {
+    alert('צריך להיות מחובר');
+    console.log('Not logged in');
+    return;
+  }
+  
+  let nameInput = document.getElementById('name');
+  let descInput = document.getElementById('desc');
+  let priceInput = document.getElementById('price');
+  let imgInput = document.getElementById('img');
+  
+  let name = nameInput.value.trim();
+  let desc = descInput.value.trim();
+  let price = priceInput.value.trim();
+  let file = imgInput.files[0];
+  
+  console.log('Inputs:', {name, desc, price, file});
+  
+  let msg = document.getElementById('message');
+  msg.innerHTML = '';
+  
+  if(!name) {
+    msg.innerHTML = '<div class="alert error">❌ הקלד שם מוצר!</div>';
+    console.log('Missing name');
+    return;
+  }
+  if(!desc) {
+    msg.innerHTML = '<div class="alert error">❌ הקלד תיאור!</div>';
+    console.log('Missing desc');
+    return;
+  }
+  if(!price) {
+    msg.innerHTML = '<div class="alert error">❌ הקלד מחיר!</div>';
+    console.log('Missing price');
+    return;
+  }
+  if(!file) {
+    msg.innerHTML = '<div class="alert error">❌ בחר תמונה!</div>';
+    console.log('Missing file');
+    return;
+  }
+  
+  console.log('All validations passed');
+  msg.innerHTML = '<div class="alert success">⏳ שומר...</div>';
+  
+  let reader = new FileReader();
+  
+  reader.onload = function(event) {
+    console.log('File loaded, creating product');
+    
+    let newProduct = {
+      id: Date.now(),
+      name: name,
+      desc: desc,
+      price: parseFloat(price),
+      img: event.target.result
+    };
+    
+    console.log('New product:', newProduct);
+    
+    products.push(newProduct);
+    console.log('Added to products array, total:', products.length);
+    
+    saveProducts();
+    console.log('Saved to sessionStorage');
+    
+    nameInput.value = '';
+    descInput.value = '';
+    priceInput.value = '';
+    imgInput.value = '';
+    
+    msg.innerHTML = '<div class="alert success">✅ מוצר התווסף בהצלחה!</div>';
+    setTimeout(() => {
+      msg.innerHTML = '';
+    }, 3000);
+    
+    console.log('UI cleared, calling showMyProducts and showProducts');
+    showMyProducts();
+    showProducts();
+    
+    console.log('=== addProduct completed ===');
+  };
+  
+  reader.onerror = function(error) {
+    console.log('File read error:', error);
+    msg.innerHTML = '<div class="alert error">❌ שגיאה בקריאת התמונה</div>';
+  };
+  
+  console.log('Starting to read file...');
+  reader.readAsDataURL(file);
+}
+
+function deleteProduct(id) {
+  console.log('Delete product:', id);
+  if(!isLoggedIn) return;
+  if(confirm('בטוח למחוק?')) {
+    products = products.filter(p => p.id !== id);
+    saveProducts();
+    showMyProducts();
+    showProducts();
+  }
+}
+
+function showMyProducts() {
+  console.log('showMyProducts called, products:', products.length);
+  let html = '';
+  if(products.length === 0) {
+    html = '<p>אין מוצרים שלך</p>';
+  } else {
+    products.forEach(p => {
+      html += '<div style="background:#111;padding:10px;margin:10px 0;border-radius:4px">';
+      html += '<b>' + p.name + '</b> - ₪' + p.price.toFixed(2);
+      html += ' <button class="btn" onclick="deleteProduct(' + p.id + ')" style="background:#f44;width:auto;margin:5px">🗑️ מחק</button>';
+      html += '</div>';
+    });
+  }
+  document.getElementById('myProducts').innerHTML = html;
+  console.log('showMyProducts completed');
+}
+
+function showProducts() {
+  console.log('showProducts called, products:', products.length);
+  let html = '';
+  if(products.length === 0) {
+    html = '<p>אין מוצרים עדיין</p>';
+  } else {
+    products.forEach(p => {
+      html += '<div class="product-item">';
+      html += '<h3>' + p.name + '</h3>';
+      html += '<img src="' + p.img + '" alt="' + p.name + '">';
+      html += '<p>' + p.desc + '</p>';
+      html += '<p style="color:#ffc107;font-weight:bold;font-size:18px">₪' + p.price.toFixed(2) + '</p>';
+      html += '<button class="btn" onclick="addToCart(' + p.id + ', \'' + p.name.replace(/'/g, "\\'") + '\', ' + p.price + ')">➕ הוסף לעגלה</button>';
+      html += '</div>';
+    });
+  }
+  document.getElementById('productList').innerHTML = html;
+  console.log('showProducts completed');
+}
+
+function addToCart(id, name, price) {
+  console.log('addToCart:', {id, name, price});
+  cart.push({id: id, name: name, price: price});
+  alert('✅ ' + name + ' הוסף לעגלה!');
+  showCart();
+}
+
+function removeFromCart(index) {
+  console.log('removeFromCart:', index);
+  cart.splice(index, 1);
+  showCart();
+}
+
+function showCart() {
+  console.log('showCart called, items:', cart.length);
+  let html = '';
+  let total = 0;
+  
+  if(cart.length === 0) {
+    html = '<p>העגלה ריקה</p>';
+  } else {
+    cart.forEach(function(item, index) {
+      total += item.price;
+      html += '<div class="product-item">';
+      html += '<b>' + item.name + '</b> - ₪' + item.price.toFixed(2);
+      html += ' <button class="btn" onclick="removeFromCart(' + index + ')" style="background:#f44;width:auto">🗑️ הסר</button>';
+      html += '</div>';
+    });
+    html += '<h3 style="color:#ffc107">סה"כ: ₪' + total.toFixed(2) + '</h3>';
+    html += '<button class="btn" onclick="checkout()">📲 הזמנה</button>';
+  }
+  
+  document.getElementById('cartList').innerHTML = html;
+  console.log('showCart completed');
+}
+
+function checkout() {
+  console.log('checkout called');
+  if(cart.length === 0) {
+    alert('העגלה ריקה');
+    return;
+  }
+  
+  let name = prompt('שם:');
+  if(!name) return;
+  let phone = prompt('טלפון:');
+  if(!phone) return;
+  
+  let total = 0;
+  let msg = '*הזמנה*\n';
+  msg += 'שם: ' + name + '\n';
+  msg += 'טלפון: ' + phone + '\n';
+  msg += '---\n';
+  
+  cart.forEach(function(item) {
+    total += item.price;
+    msg += item.name + ' - ₪' + item.price.toFixed(2) + '\n';
+  });
+  
+  msg += '---\n';
+  msg += 'סה"כ: ₪' + total.toFixed(2);
+  
+  let url = 'https://wa.me/972533381681?text=' + encodeURIComponent(msg);
+  window.open(url);
+  
+  alert('✅ ההזמנה נשלחה!');
+  cart = [];
+  showCart();
+  console.log('checkout completed');
+}
+
+console.log('Script ready');
+</script>
+</body>
+</html>
