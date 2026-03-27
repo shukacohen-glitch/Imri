@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אמרי מלכת ה��קוויש</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>ברוך הבא למלכת הסקוויש!</h1>
+    </header>
+    <main>
+        <section id="admin-panel">
+            <h2>פאנל ניהול</h2>
+            <form action="/admin" method="POST">
+                <input type="text" name="adminCode" placeholder="הזן קוד מנהל" value="5262104" required>
+                <button type="submit">כניסת מנהל</button>
+            </form>
+        </section>
+        <section id="upload">
+            <h2>העלאת תמונות מוצרים</h2>
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                <input type="file" name="productImage" required>
+                <button type="submit">העלה תמונה</button>
+            </form>
+        </section>
+        <section id="catalog">
+            <h2>קטלוג מוצרים</h2>
+            <div id="products">
+                <!-- Products will be dynamically inserted here -->
+            </div>
+        </section>
+        <section id="cart">
+            <h2>עגלת קניות</h2>
+            <div id="shoppingCart">
+                <!-- Cart items will be displayed here -->
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>להזמנות, פנה אלינו ב- <a href="https://wa.me/972533381681">WhatsApp</a></p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
