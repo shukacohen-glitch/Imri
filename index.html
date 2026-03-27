@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>אמרי</title>
+    <style>
+        body { background: #000; color: #fff; font-family: Arial; padding: 20px; }
+        h1 { color: #ffc107; text-align: center; }
+        .nav { text-align: center; margin: 20px 0; }
+        .nav button { background: #ffc107; color: #000; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 14px; }
+        .nav button:hover { background: #ffed4e; }
+        .content { margin: 20px 0; padding: 20px; background: #111; border-radius: 4px; }
+        .hidden { display: none !important; }
+        h2 { color: #ffc107; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🛒 אמרי מלכת הסקוויש</h1>
+    
+    <div class="nav">
+        <button onclick="switchPage('home')">📦 קטלוג</button>
+        <button onclick="switchPage('admin')">🔐 ניהול</button>
+        <button onclick="switchPage('cart')">🛒 עגלה</button>
+    </div>
+
+    <div id="home" class="content">
+        <h2>קטלוג</h2>
+        <p>קטלוג המוצרים שלנו</p>
+        <p>לחץ על ניהול כדי להוסיף מוצרים</p>
+    </div>
+
+    <div id="admin" class="content hidden">
+        <h2>ניהול</h2>
+        <p>כאן אתה יכול להוסיף מוצרים</p>
+        <input type="password" id="pwd" placeholder="קוד">
+        <button onclick="login()">כניסה</button>
+    </div>
+
+    <div id="cart" class="content hidden">
+        <h2>עגלה</h2>
+        <p>העגלה שלך ריקה</p>
+    </div>
+
+    <script>
+        function switchPage(page) {
+            document.getElementById('home').classList.add('hidden');
+            document.getElementById('admin').classList.add('hidden');
+            document.getElementById('cart').classList.add('hidden');
+            document.getElementById(page).classList.remove('hidden');
+        }
+        
+        function login() {
+            let pwd = document.getElementById('pwd').value;
+            if(pwd === '5262104') {
+                alert('✅ התחברת!');
+            } else {
+                alert('❌ קוד שגוי!');
+            }
+        }
+    </script>
+</body>
+</html>
